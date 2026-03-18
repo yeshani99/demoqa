@@ -1,5 +1,6 @@
 package tests;
 
+import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -101,4 +102,121 @@ public class TextBoxTest extends BaseTest {
 
         Assert.assertTrue(page.getNameOutput().contains("Yeshani"));
     }
+    @Test
+    public void minInputTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        page.enterFullName("A");
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        Assert.assertTrue(page.getNameOutput().contains("A"));
+    }
+    @Test
+    public void maxInputTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        String longName = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        page.enterFullName(longName);
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        Assert.assertTrue(page.getNameOutput().contains(longName));
+    }
+    @Test
+    public void specialCharacterTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        page.enterFullName("@#$%^&*");
+        page.enterCurrentAddress("!@# Colombo");
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        Assert.assertTrue(page.getNameOutput().contains("@#$%^&*"));
+    }
+    @Test
+    public void numericNameTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        page.enterFullName("123456");
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        Assert.assertTrue(page.getNameOutput().contains("123456"));
+    }
+    @Test
+    public void invalidEmailFormats() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        page.enterFullName("Yeshani");
+        page.enterEmail("test@.com"); // invalid
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        String emailClass = driver.findElement(By.id("userEmail"))
+                .getAttribute("class");
+
+        Assert.assertTrue(emailClass.contains("field-error"));
+    }
+    @Test
+    public void spacesOnlyTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        page.enterFullName("     ");
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        String output = page.getNameOutput();
+
+        Assert.assertTrue(output.contains("     "));
+    }
+    @Test
+    public void uiValidationTest() {
+
+        Assert.assertTrue(driver.findElement(By.id("userName")).isDisplayed());
+        Assert.assertTrue(driver.findElement(By.id("submit")).isEnabled());
+    }
+    @Test
+    public void refreshPageTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        page.enterFullName("Yeshani");
+        Thread.sleep(1000);
+
+        driver.navigate().refresh();
+        Thread.sleep(2000);
+
+        String value = driver.findElement(By.id("userName")).getAttribute("value");
+
+        Assert.assertTrue(value.isEmpty());
+    }
+    @Test
+    public void copyPasteTest() throws InterruptedException {
+        TextBoxPage page = new TextBoxPage(driver);
+
+        String text = "Copied Text Example";
+
+        page.enterFullName(text);
+        Thread.sleep(1000);
+
+        page.clickSubmit();
+        Thread.sleep(2000);
+
+        Assert.assertTrue(page.getNameOutput().contains(text));
+    }
+
+
+
 }
